@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "+B8eW6bTihRO8iXZhAtFrDrP8xYuc+ZmFBHQhlyyLfxTm+Dk8kMiYijv5AbHS/8vORVKZrvfDWu9qLYhznzDwA==",
+  "success": true,
+  "projectFilePath": "/Users/kenneth/GIT/docker-crashcourse/WeatherApi/WeatherApi.csproj",
+  "expectedPackageFiles": [
+    "/Users/kenneth/.nuget/packages/microsoft.extensions.apidescription.server/3.0.0/microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
+    "/Users/kenneth/.nuget/packages/microsoft.openapi/1.2.3/microsoft.openapi.1.2.3.nupkg.sha512",
+    "/Users/kenneth/.nuget/packages/swashbuckle.aspnetcore/5.6.3/swashbuckle.aspnetcore.5.6.3.nupkg.sha512",
+    "/Users/kenneth/.nuget/packages/swashbuckle.aspnetcore.swagger/5.6.3/swashbuckle.aspnetcore.swagger.5.6.3.nupkg.sha512",
+    "/Users/kenneth/.nuget/packages/swashbuckle.aspnetcore.swaggergen/5.6.3/swashbuckle.aspnetcore.swaggergen.5.6.3.nupkg.sha512",
+    "/Users/kenneth/.nuget/packages/swashbuckle.aspnetcore.swaggerui/5.6.3/swashbuckle.aspnetcore.swaggerui.5.6.3.nupkg.sha512"
+  ],
+  "logs": []
+}
