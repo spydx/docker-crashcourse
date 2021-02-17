@@ -3,6 +3,14 @@
 Mini crash course for Docker and a simple C# application
 
 Goal is to build a docker container and use docker-compose to utilize the docker container in the project.
+## YouTube Resources
+
+[Docker in 100 Seconds](https://www.youtube.com/watch?v=Gjnup-PuquQ&ab_channel=Fireship)
+
+[Docker Tutorial for Beginners](https://www.youtube.com/watch?v=3c-iBn73dDE&ab_channel=TechWorldwithNana)
+
+[Kubernetes Explained in 100 Seconds](https://www.youtube.com/watch?v=PziYflu8cB8&ab_channel=Fireship)
+
 
 ## The Weather API
 
