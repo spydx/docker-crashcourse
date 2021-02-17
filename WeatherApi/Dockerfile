@@ -13,7 +13,7 @@ RUN dotnet build WeatherApi.csproj -c Release
 ## now we are to specify running container
 FROM mcr.microsoft.com/dotnet/aspnet:latest AS runner
 
-# For demo purposes we want to set an enviromental variable used bu the running app
+# For demo purposes we want to set an environmental variable used bu the running app
 ENV ASPNETCORE_ENVIRONMENT Development
 
 # The built release is in a subfolder

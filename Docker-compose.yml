@@ -1,0 +1,15 @@
+version : '3.7'
+services:
+   weather-api: # this is the name of our service.
+      build: 
+         context: WeatherApi
+         dockerfile: Dockerfile 
+      ports: 
+         - 8080:80
+   #   depends_on:
+   #      - weather-db
+   #weather-db:
+   #   image: mariadb
+   #   restart: always
+   #   environment:
+   #      MYSQL_ROOT_PASSWORD: example

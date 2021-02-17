@@ -3,6 +3,7 @@
 Mini crash course for Docker and a simple C# application
 
 Goal is to build a docker container and use docker-compose to utilize the docker container in the project.
+
 ## YouTube Resources
 
 [Docker in 100 Seconds](https://www.youtube.com/watch?v=Gjnup-PuquQ&ab_channel=Fireship)
@@ -11,11 +12,14 @@ Goal is to build a docker container and use docker-compose to utilize the docker
 
 [Kubernetes Explained in 100 Seconds](https://www.youtube.com/watch?v=PziYflu8cB8&ab_channel=Fireship)
 
+## First thing
+
+1. Install Docker on your machine
+2. Clone this repo and follow the guide
+
 ## The Weather API
 
-We are making a simple Weather Api that is exposing this address.
-[WeatherApi](http://localhost:5000/swagger/index.html)
-Our container will expose this service on port 8080 instead.
+We are using the WeatherApi from Microsoft to demonstrate how to build a container that will expose its services on a port 8080.
 
 This project is using C#, but we don't need any tools on our machine to build this, since
 we are going to use the docker to do this for us.
@@ -84,16 +88,25 @@ EXPOSE 8080
 ENTRYPOINT ["dotnet", "WeatherApi.dll"]
 ```
 
+For our building image we are to be using this image:
+`mcr.microsoft.com/dotnet/sdk:latest`
+For our running image we are to be using this image:
+`mcr.microsoft.com/dotnet/aspnet:latest`
+
+More information about these images can be found here:
+[mcr.microsoft.com/dotnet/sdk](https://hub.docker.com/_/microsoft-dotnet-sdk/)
+[mcr.microsoft.com/dotnet/aspnet](https://hub.docker.com/_/microsoft-dotnet-aspnet/)
+
 ### Building steps
+
+We are going to use a `Dockerfile` and use use these aliases `FROM <image>:<tag> as builder` and then use `FROM <image>:<tag> as runner` to create a two step build and run. They can be named anything, this is just to illustrate.
+
+Note: If your application is not compiled, and don't need a build step, e.g. Python Flask webpage, React app, then it would suffice with a runner only image.
 
 Build steps are done to reduce the size of the end image.
 E.g. if the application is written in Rust, keeping the build and the running image the same.
 The size of the container will be huge. Meaning, every time there is a change, you will have to download all this locally to get it down.
 Rust build image may, depending on your build, be 1Gb+ if not more.
-
-This is why we within the `Dockerfile` use these aliases `FROM <image>:<tag> as builder` and then use `FROM <image>:<tag> as runner`. They can be named anything, this is just to illustrate.
-
-Note: If your application is not compiled, and don't need a build step, e.g. Python Flask webpage, React app, then it would suffice with a runner only image.
 
 With that said, lets build the container.
 In the root of the `WeatherApi` project, where the `Dockerfile` is placed we are to run these commands.
@@ -208,11 +221,112 @@ http://localhost:8080/swagger/
 
 ## Create a Docker-Compose file
 
+Docker-compose is to orchestrate e.g. the launch of a project.
+Lets say that this API is relying on a backend database and this has to start before we can access the API.
+
+We are just going to simulate that these two components are connected and talking together over code.
 
 ### Write the first draft
 
-### Changing the code
+Let's first create the docker-compose.yml for our api and try to launch this first.
 
-### Adding a service
+The docker-compose.yml is living at the root, outside `WeatherApi` folder.
+It can be placed otherplaces, but we need to be in the same folder as it is to run the `docker-compose` command.
 
-### Verifying that everything works
+```yml
+version : '3.7'
+services:
+   weather-api: # this is the name of our service.
+      build: WeatherApi
+      dockerfile: Dockerfile 
+   ports: # ports to be exposed
+      - 8080:80
+   networks:
+      - backend
+
+networks:
+   frontend:
+```
+
+Check that you are in the same dir as the `docker-compose.yml` and write the following.
+
+```sh
+$ docker-compose up
+
+... snip
+
+Creating docker-crashcourse_weather-api_1 ... done
+Attaching to docker-crashcourse_weather-api_1
+weather-api_1  | info: Microsoft.Hosting.Lifetime[0]
+weather-api_1  |       Now listening on: http://[::]:80
+weather-api_1  | info: Microsoft.Hosting.Lifetime[0]
+weather-api_1  |       Application started. Press Ctrl+C to shut down.
+weather-api_1  | info: Microsoft.Hosting.Lifetime[0]
+weather-api_1  |       Hosting environment: Development
+weather-api_1  | info: Microsoft.Hosting.Lifetime[0]
+weather-api_1  |       Content root path: /app
+```
+
+This command will if the image does not exist, build it and then launch it.
+Since we didn't use the `-d` switch, we are stuck in this terminal until we press `CTRL-C``
+When we do this the service shuts down.
+
+When using the `-d`, it may look like this:
+
+```sh
+$ docker-compose up -d
+Starting docker-crashcourse_weather-api_1 ... done
+$ docker-compose down
+Stopping docker-crashcourse_weather-api_1 ... done
+Removing docker-crashcourse_weather-api_1 ... done
+Removing network docker-crashcourse_default
+```
+
+### Adding the database
+
+Using docker-compose for a single container is very usefull.
+But since we are to add a database and claim that the `WeatherApi` is depending on this database service.
+
+So we are going to insert the following into the `docker-compose.yml`.
+
+```yml
+   weather-db:
+      image: mariadb
+      restart: always
+      environment:
+         MYSQL_ROOT_PASSWORD: example
+```
+
+Now, we are going to run the `docker-compose` command again and see that the database is also starting.
+
+```sh
+$ docker-compose up
+
+... lost of text
+
+weather-db_1  | Version: '10.4.12-MariaDB-1:10.4.12+maria~bionic'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306 
+```
+
+So this is all good and everything.
+But now the database and database startet at the same time and that is not good.
+
+But we can add `depends_on:` for the `weather-api` service in the `docker-compose.yml` file.
+
+```yml
+         depends_on:
+            - weather-db
+```
+
+And when you then run `docker-compose` you should see that the services are starting in order.
+
+```sh
+$ docker-compose up
+... snip ..
+
+weather-db_1   | 2021-02-17 19:02:26 0 [Note] mysqld: ready for connections.
+weather-db_1   | Version: '10.4.12-MariaDB-1:10.4.12+maria~bionic'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  mariadb.org binary distribution
+weather-api_1  | info: Microsoft.Hosting.Lifetime[0]
+weather-api_1  |       Now listening on: http://[::]:80
+
+... snip...
+```
